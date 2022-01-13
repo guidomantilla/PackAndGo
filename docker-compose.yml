@@ -1,0 +1,51 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  pack-and-go-app:
+    build:
+      context: .
+    image: pack-and-go-app
+    container_name: pack-and-go-app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - pack-and-go-mysql
+    environment:
+      HOST_POST: :8080
+      LOG_LEVEL: ERROR
+      DATASOURCE_USERNAME: pack-and-go
+      DATASOURCE_PASSWORD: 'pack-and-go+'
+      DATASOURCE_URL: ':username::password@tcp(pack-and-go-mysql:3306)/pack-and-go?charset=utf8'
+      SENTRY_DSN: 'http://73f889a91861474ab5ad2860d4b10aad@192.168.0.155:9000/1'
+      SENTRY_ENVIRONMENT: dev
+      SENTRY_RELEASE: sample
+    networks:
+      - pack-and-go-network
+
+  pack-and-go-mysql:
+    image: mysql
+    restart: always
+    container_name: pack-and-go-mysql
+    ports:
+      - "3308:3306"
+      - "33080:33060"
+    volumes:
+      - pack-and-go-db_data:/var/lib/mysql
+      - type: bind
+        source: ./data/script.sql
+        target: /docker-entrypoint-initdb.d/script.sql
+    environment:
+      MYSQL_DATABASE: 'pack-and-go'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: 'pack-and-go*'
+      MYSQL_USER: 'pack-and-go'
+      MYSQL_PASSWORD: 'pack-and-go+'
+    networks:
+      - pack-and-go-network
+volumes:
+  pack-and-go-db_data:
+    name: pack-and-go-db_data
+
+networks:
+  pack-and-go-network:
+    name: pack-and-go-network
+    driver: bridge
