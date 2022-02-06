@@ -1,13 +1,13 @@
 deploy-all-local: validate
-	docker compose up -d
+	docker-compose up -d
 
 destroy-all-local:
-	docker compose down -v --rmi all --remove-orphans
+	docker-compose down -v --rmi all --remove-orphans
 
 run-local: deploy-db-local validate serve
 
 deploy-db-local:
-	docker compose up -d pack-and-go-mysql
+	docker-compose up -d pack-and-go-mysql
 
 validate: format vet lint test
 
